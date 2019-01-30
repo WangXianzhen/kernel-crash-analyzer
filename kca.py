@@ -97,9 +97,9 @@ def unpack_debug_kernel(app, kver, kernel):
     if not os.path.exists('{}_debug'.format(kver)):
         os.makedirs('{}_debug'.format(kver))
 
-    # print("Extracting...: kernel 'boot/vmlinux-{}'...".format(kver))
-    # subprocess.run(['tar', 'xvf', 'data.tar.xz', '-C',
-    #                '{}_debug'.format(kver), kernel_path], check=True)
+    print("Extracting...: kernel 'boot/vmlinux-{}'...".format(kver))
+    subprocess.run(['tar', 'xvf', 'data.tar.xz', '-C',
+                   '{}_debug'.format(kver), kernel_path], check=True)
 
     print("Removing.....: control.tar.gz, data.tar.gz")
     os.unlink('data.tar.xz')
