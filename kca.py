@@ -12,17 +12,16 @@
 #     `-'    `-'
 #
 # TODO: # to be checked off when completed
-# 
+#
 #  [ ] Add debug for incorrect kernel version numbers passed in
 #  [ ] Detect host environment, use dpkg vs. ar where necessary
 #  [ ] Add optional '-d' arg to specify an output directory, else pwd
-#  [ ] Support cleanly slicing Call Trace pragma from logs 
+#  [ ] Support cleanly slicing Call Trace pragma from logs
 #  [ ] Jinja2 support for output 'report' of final results
 #
 #####################################################################
 from lxml import html
 import click
-import glob
 import os
 import requests
 import subprocess
@@ -91,7 +90,6 @@ def download_kernel(app, kernel, headers):
 
 ###############################################################
 def unpack_debug_kernel(app, kver, kernel):
-    kernel_path = './usr/lib/debug/boot/vmlinux-{}'.format(kver)
 
     print("Unpacking....: {}".format(kernel))
     subprocess.run(['ar', 'x', kernel], check=True)
@@ -99,12 +97,21 @@ def unpack_debug_kernel(app, kver, kernel):
     if not os.path.exists('{}_debug'.format(kver)):
         os.makedirs('{}_debug'.format(kver))
 
-    print("Extracting...: kernel 'boot/vmlinux-{}'...".format(kver))
-    subprocess.run(['tar', 'xvf', 'data.tar.xz', '-C',
-                   '{}_debug'.format(kver), kernel_path], check=True)
+    # print("Extracting...: kernel 'boot/vmlinux-{}'...".format(kver))
+    # subprocess.run(['tar', 'xvf', 'data.tar.xz', '-C',
+    #                '{}_debug'.format(kver), kernel_path], check=True)
 
     print("Removing.....: control.tar.gz, data.tar.gz")
-    map(os.unlink, glob.glob('*.xz'))
+    os.unlink('data.tar.xz')
+
+
+###############################################################
+def dump_symbols(app, kver):
+
+    with open("debug.S", "wb", 0) as out:
+        subprocess.run(['objdump', '-l', '-D',
+                        '{}_debug/usr/lib/debug/boot/vmlinux-{}'.format(kver, kver)],
+                       stdout=out, check=True)
 
 
 @click.command()
@@ -136,6 +143,7 @@ def main(arch, kver):
             r = app.session.head('{}/{}'.format(app.k_url, kernel))
             download_kernel(app, kernel, r.headers)
             unpack_debug_kernel(app, kver, kernel)
+            dump_symbols(app, kver)
 
 
 if __name__ == "__main__":
