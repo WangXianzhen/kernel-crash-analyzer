@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #####################################################################
 #        _._
 #       /_ _`.      (c) 2019, David A. Desrosiers
@@ -141,7 +141,7 @@ def main(arch, kver, dest_dir):
         app.k_url).text.encode('ascii', 'ignore').decode('utf-8')
 
     kernels = html.fromstring(r)
-    links = kernels.xpath('//a/@href')
+    links = kernels.xpath('//a/@href[contains(., "linux-image")]')
 
     for kernel in links:
         if arch in kernel and kver in kernel:
@@ -150,10 +150,10 @@ def main(arch, kver, dest_dir):
             download_kernel(app, dest_dir, kernel, kernel_size)
             unpack_debug_kernel(app, dest_dir, kver, kernel)
             dump_symbols(app, dest_dir, kver)
-        else:
-            print("Kernel {} not found. Is this the version kernel?"
-                  .format(kver))
-            return
+#        else:
+#            print("Kernel {} not found. Is this the right kernel version?"
+#                  .format(kver))
+#            return
 
 
 if __name__ == "__main__":
